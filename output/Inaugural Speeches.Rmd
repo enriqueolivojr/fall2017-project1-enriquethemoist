@@ -1,0 +1,489 @@
+---
+title: "Applied Data Science, Project 1"
+author: "Enrique Olivo eco2121"
+date: "September 20, 2017"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+<center><b><h1> This Means War </b></h1></center>
+
+<center>![](C:/Users/enriquethemoist/Documents/missionaccomplished.jpg)</center>
+
+#Introduction
+
+My project will attempt to use the tools of Data Science to characterize the attitudes of a war-time American President. 
+
+I will do this through analysis of Presidential Inaugural Speeches - constructed statements of each President's vision for the United States' role in the world, and arguably the most important indicator for what is to come in their term. 
+
+I chose this area of focus for my project because I hypothesize that the United States' historical ventures into war can be traced to the aggressive attitudes held by the Commander-in-Chief of America's Armed Forces, as expressed through their foreign policy, but more importantly, as represented in the tone and content of their inaugural speeches.
+
+I believe I will discover noticeable trends in the topics evoked and sentiments employed by the War Presidents, that will stand in contrast to the Presidents of Peacetime. I further believe that these trends will reflect well-documented attitudes that have plunged the United States towards war - the moral fight against tyranny, the material desire for an overseas empire, or even WW2 style rhetoric of a Great Crusade aimed at ensuring security for "the free men of the world." (General Eisenhower, 1944) 
+
+<br>
+
+#Defining a "War-time" President
+
+In the history of the United States, Congress has declared war on only 11 occasions: the first being against Britain in the War of 1812, and the last one being against the Axis Powers of WW2. But to rely on a definition of war that restricts itself to formal declarations of Congress would ignore the inclusion of conflicts that would otherwise obviously seem to be worthy of being titled a "war." The American Revolution, the American Civil War, and the Iraq War are only some examples of armed excursions that were ordered by an American President without a full declaration from Congress. 
+
+Thus, for the purposes of this project, we will maintain a relatively free definition on the concept of "war." We will accordingly brand the following Commanders-in-Chief as "War Presidents."
+
+
+George Washington (1789-97)
+<br>
+Although his presidential term from ran after the American Revolution of 1775-83, he was nevertheless Commander-in-Chief of the Continental Army during the Revolution. His presidency, like the newly-born United States under his leadership, was therefore inextricably linked to War.
+
+
+-	James Madison (1809-17)
+<br>
+Madison was President at the beginning of America's first aspirations towards Manifest Destiny. The country sought to expand and further assert its claim to being an independent nation worthy of respect, particularly with regards to the British, who seemed to never fully accept this notion of independence. Minor territorial skirmishes that occurred within this ideological context culminated in the War of 1812, a three-year conflict that included American attempts to annex the Canadian colonies and British attempts to burn down the 13 Colonies.
+
+
+
+-	James K. Polk (1845-49)
+<br>
+Polk was President during a more intense expression of Manifest Destiny in the 1848 Mexican-American War, a conflict that sought expansion through annexing from Mexico parts of what are now known as California, Utah, Arizona, New Mexico, Colorado, and Wyoming - an area of land that reached 529,000 square miles.
+
+
+
+-	Abraham Lincoln (1861-65)
+<br>
+Lincoln was President during the bloodiest period of American History, the Civil War between the North and the South. His election and assassination roughly designate both the start and end of a war that centered on slavery's right to exist in the United States.
+
+
+
+-	William McKinley (1897-1901)
+<br>
+Like other Presidents before him, McKinley based much of his Presidency on territorial expansion through force. In 1898, he led the United States to victory in the Spanish-American War. As a result, his country gained the former Spanish colonies of Guam, Puerto Rico, and the gateway to China: the Philippines. McKinley was assassinated in 1901 by an anarchist who accused the President of being a friend of Imperialism, and an "enemy of good working people."  
+
+
+
+-	Woodrow Wilson (1913-21)
+<br>
+Wilson led the United States through the First World War. His involvement in the conflict was defined by an approach to foreign policy now known as "Wilsonianism," which advocated for the spread of democratic self-determination in other countries, even at the cost of using armed intervention. 
+
+
+
+-	Franklin Delano Roosevelt (1933-45)
+<br>
+The longest-serving President, FDR led the United States through the Second World War, the last conflict to be officially sanctioned by Congress through a formal declaration of war.
+
+
+
+-	Harry S. Truman (1945-53)
+<br>
+Truman succeeded FDR to be the President that saw the end to the Second World War, and the beginning of the Korean War. 
+
+
+-	Dwight D. Eisenhower (1953-61)
+<br>
+In addition to being the Commander of the Allied Forces in WW2, Eisenhower saw the end of the Korean War, and the beginning of armed excursions into Vietnam. 
+
+
+
+-	John F. Kennedy (1961-63)
+<br>
+JFK also led the US through the Vietnam War, and through tumultuous times with International Communism as best exemplified in the Cuban Missile Crisis of the Cold War.
+
+
+
+-	Lyndon B. Johnson (1963-69)
+<br>
+After Kennedy's assassination, LBJ became the third President to oversee conflict in Vietnam.
+
+
+
+-	Richard Nixon (1969-74)
+<br>
+Nixon led the United States through the Vietnam War to when direct American military involvement ended in 1973.
+
+
+
+-	George Bush the First of His Name (1989-93)
+<br>
+Bush the First was President during the Gulf War, which was prompted by the Iraqi invasion of Kuwait.
+
+
+
+-	Bill Clinton (1993-2001)
+<br>
+Although officially designated a NATO military operation, the bombing campaigns conducted by NATO in the 1990's as part of the Wars in Yugoslavia were largely composed of American aircraft, and thus undeniably constituted direct military intervention on behalf of the American State. 
+
+
+-	George Bush the Second of His Name (2001-09)
+<br>
+Bush the Second is famous for launching the "War on Terror" as a response to the 9/11 terrorist attacks. This War continues, and includes formal military engagements such as the 2001 War in Afghanistan, and the 2003 War in Iraq.
+
+
+
+-	Barack Obama (2009-16)
+<br>
+Obama continued the Bush-era War on Terror and notably increased troop levels in Afghanistan. He also ordered direct military intervention into Libya, and it was during his term that Osama Bin Laden was captured and executed.
+
+
+
+-	Donald J. Trump (2017 - present)
+<br>
+Trump continues the War on Terror, and has most recently ordered direct military engagement in Yemen against Al-Qaeda.
+
+
+
+<br>
+
+
+
+
+```{r setup, include=FALSE}
+# load packages, taken from tutorial
+library("rvest")
+library("tibble")
+library("qdap") 
+library("sentimentr")
+library("gplots")
+library("dplyr")
+library("tm")
+library("syuzhet")
+library("factoextra")
+library("beeswarm")
+library("scales")
+library("RColorBrewer")
+library("RANN")
+library("tm")
+library("topicmodels")
+library("ngram")
+
+source("C:/Users/enriquethemoist/Dropbox/Columbia Work/4A - one/Applied Data Science/Project 1/fall2017-project1-enriquethemoist-master/wk2-TextMining/wk2-TextMining/lib/plotstacked.R")
+
+source("C:/Users/enriquethemoist/Dropbox/Columbia Work/4A - one/Applied Data Science/Project 1/fall2017-project1-enriquethemoist-master/wk2-TextMining/wk2-TextMining/lib/speechFuncs.R")
+
+```
+
+
+# Harvesting the Speech URLs
+
+```{r}
+### Inaugural speeches
+main.page <- read_html(x = "http://www.presidency.ucsb.edu/inaugurals.php")
+# Get link URLs
+inaug <- f.speechlinks(main.page)
+# f.speechlinks is a function for extracting links from the list of all inaugural speeches.
+#as.Date(inaug[,1], format="%B %e, %Y")
+inaug <- inaug[-nrow(inaug),] # remove the last line, irrelevant due to error.
+
+
+```
+
+
+#Read in CSV Data of speeches that we will scrap
+
+
+```{r}
+##CSV Data of Inaugural Speeches
+inaug.list <- read.csv("C:/Users/enriquethemoist/Dropbox/Columbia Work/4A - one/Applied Data Science/Project 1/fall2017-project1-enriquethemoist-master/wk2-TextMining/wk2-TextMining/data/inauglist.csv", stringsAsFactors = FALSE)
+```
+
+#Scrap the speech text from the URLs
+
+```{r}
+##Adding in url and speech type to speech.list dataframe
+
+inaug.url <- inaug
+speech.list <- cbind(inaug.list, inaug.url)
+speech.list$type=c(rep("inaug", nrow(inaug.list)))
+
+##Extracting the main text of the speeches themselves
+speech.list$fulltext=NA
+for(i in seq(nrow(speech.list))) {
+  text <- read_html(speech.list$urls[i]) %>% # load the page
+    html_nodes(".displaytext") %>% # isloate the text
+    html_text() # get the text
+  speech.list$fulltext[i]=text
+  # Create the file name
+  filename <- paste0("C:/Users/enriquethemoist/Dropbox/Columbia Work/4A - one/Applied Data Science/Project 1/fall2017-project1-enriquethemoist-master/wk2-TextMining/wk2-TextMining/data/fulltext", 
+                     speech.list$File[i], "-", 
+                     speech.list$Term[i], ".txt")
+  sink(file = filename) %>% # open file to write 
+  cat(text)  # write the file
+  sink() # close the file
+}
+
+
+```
+
+#Generating a list of sentences. 
+
+Sentences being natural language "units of analysis," they are the ideal unit to use for conducting sentiment analysis of the speeches.
+
+The NRC Emotion Lexicon is a list of English words and their associations with eight basic emotions (anger, fear, anticipation, trust, surprise, sadness, joy, and disgust) and two sentiments (negative and positive). We will use this lexicon in our sentiment analysis.
+
+```{r}
+sentence.list=NULL
+for(i in 1:nrow(speech.list)){
+  sentences=sent_detect(speech.list$fulltext[i],
+                        endmarks = c("?", ".", "!", "|",";"))
+  if(length(sentences)>0){
+    emotions=get_nrc_sentiment(sentences)
+    word.count=word_count(sentences)
+     #colnames(emotions)=paste0("emo.", colnames(emotions))
+     #in case the word counts are zeros?
+    emotions=diag(1/(word.count+0.01))%*%as.matrix(emotions)
+    sentence.list=rbind(sentence.list, 
+                        cbind(speech.list[i,-ncol(speech.list)],
+                              sentences=as.character(sentences), 
+                              word.count,
+                              emotions,
+                              sent.id=1:length(sentences)
+                              )
+   )
+  }
+}
+
+sentence.list=
+  sentence.list%>%
+  filter(!is.na(word.count)) 
+
+```
+
+#Sub-setting the speeches of Wartime and Peacetime Presidents
+
+```{r}
+wartime <- c("GeorgeWashington", "JamesMadison", "JamesKPolk","AbrahamLincoln","WilliamMckinley","WoodrowWilson","FranklinDRoosevelt","HarrySTruman","DwightDEisenhower","JohnFKennedy","LyndonBJohnson","RichardNixon","GeorgeBush","WilliamJClinton","GeorgeWBush","BarackObama","DonaldJTrump")
+
+peacetime <- c("JohnAdams","ThomasJefferson","JamesMonroe","JohnQuincyAdams","AndrewJackson","MartinvanBuren","WilliamHenryHarrison","ZacharyTaylor","FranklinPierce","JamesBuchanan","UlyssesSGrant","RutherfordBHayes","JamesGarfield","GroverCleveland-I","GroverCleveland-II","BenjaminHarrison","WarrenGHarding","CalvinCoolidge","HerbertHoover","JimmyCarter","RonaldReagan")
+
+
+war.a<- sentence.list[sentence.list$File=="GeorgeWashington", ]
+war.b<- sentence.list[sentence.list$File=="JamesMadison",]
+war.c<- sentence.list[sentence.list$File=="JamesKPolk",]
+war.d<- sentence.list[sentence.list$File=="AbrahamLincoln",]
+war.e<- sentence.list[sentence.list$File=="WilliamMckinley",]
+war.f<- sentence.list[sentence.list$File=="WoodrowWilson",]
+war.g<- sentence.list[sentence.list$File=="FranklinDRoosevelt",]
+war.h<- sentence.list[sentence.list$File=="HarrySTruman",]
+war.i<- sentence.list[sentence.list$File=="DwightDEisenhower",]
+war.j<- sentence.list[sentence.list$File=="JohnFKennedy",]
+war.k<- sentence.list[sentence.list$File=="LyndonBJohnson",]
+war.l<- sentence.list[sentence.list$File=="RichardNixon",]
+war.m<- sentence.list[sentence.list$File=="GeorgeBush",]
+war.n<- sentence.list[sentence.list$File=="WilliamJClinton",]
+war.o<- sentence.list[sentence.list$File=="GeorgeWBush",]
+war.p<- sentence.list[sentence.list$File=="BarackObama",]
+war.q<- sentence.list[sentence.list$File=="DonaldJTrump",]
+wartime.sentences <- rbind(war.a,war.b,war.c,war.d,war.e,war.f,war.g,war.h,war.i,war.j,war.k,war.l,war.m,war.n,war.o,war.p,war.q)
+
+peace.a<- sentence.list[sentence.list$File=="JohnAdams",]
+peace.b<- sentence.list[sentence.list$File=="ThomasJefferson",]
+peace.c<- sentence.list[sentence.list$File=="JamesMonroe",]
+peace.d<- sentence.list[sentence.list$File=="JohnQuincyAdams",]
+peace.e<- sentence.list[sentence.list$File=="AndrewJackson",]
+peace.f<- sentence.list[sentence.list$File=="MartinvanBuren",]
+peace.g<- sentence.list[sentence.list$File=="WilliamHenryHarrison",]
+peace.h<- sentence.list[sentence.list$File=="ZacharyTaylor",]
+peace.i<- sentence.list[sentence.list$File=="FranklinPierce",]
+peace.j<- sentence.list[sentence.list$File=="JamesBuchanan",]
+peace.k<- sentence.list[sentence.list$File=="UlyssesSGrant",]
+peace.l<- sentence.list[sentence.list$File=="RutherfordBHayes",]
+peace.m<- sentence.list[sentence.list$File=="JamesGarfield",]
+peace.n<- sentence.list[sentence.list$File=="GroverCleveland-I",]
+peace.o<- sentence.list[sentence.list$File=="GroverCleveland-II",]
+peace.p<- sentence.list[sentence.list$File=="BenjaminHarrison",]
+peace.q<- sentence.list[sentence.list$File=="WarrenGHarding",]
+peace.r<- sentence.list[sentence.list$File=="CalvinCoolidge",]
+peace.s<- sentence.list[sentence.list$File=="HerbertHoover",]
+peace.t<- sentence.list[sentence.list$File=="Jimmy Carter",]
+peace.u<- sentence.list[sentence.list$File=="RonaldReagan",]
+peacetime.sentences <- rbind(peace.a,peace.b,peace.c,peace.d,peace.e,peace.f,peace.g,peace.h,peace.i,peace.j,peace.k,peace.l,peace.m,peace.n,peace.o,peace.p,peace.q,peace.r,peace.s,peace.t,peace.u)
+
+
+#Dataframe of War Presidents' sentences: wartime.sentences
+#Dataframe of Peace Presidents' sentences: peacetime.sentences
+
+
+
+```
+
+#Sentiment Analysis: Speeches as a whole
+
+Using the above mentioned NRC Emotion Lexicon, we will graph each speech's presence of the following basic emotions: anger, fear, anticipation, trust, surprise, sadness, joy, and disgust. They will be represented by the following colors.
+
+
+<b><font color="red">Anger</font></b>
+<b><font color="blue">Sadness</font></b>
+<b><font color="green">Disgust</font></b>
+<b><font color="purple">Fear</font></b>
+<b><font color="yellow">Trust, Anticipation, Joy, and Surprise</font></b>
+
+There will also exist colours that go from grey to black. This scale in shading will represent the Lexicon's characterization of positive to negative sentiment. The darker the shade of grey, the more negative the sentiment. 
+
+```{r}
+
+
+#Now try to plot across ALL Presidents
+
+plot.warlist=function(In.list){
+  
+  col.use=c("lightgray", "red2", "darkgoldenrod1", 
+            "chartreuse3", "blueviolet",
+            "darkgoldenrod2", "dodgerblue3", 
+            "darkgoldenrod1", "darkgoldenrod1",
+            "black", "darkgoldenrod2")
+  
+  In.list$topemotion=apply(select(In.list, 
+                                        anger:positive), 
+                                 1, which.max)
+  In.list$topemotion.v=apply(select(In.list,
+                                          anger:positive), 
+                                   1, max)
+  In.list$topemotion[In.list$topemotion.v<0.05]=0
+  In.list$topemotion=In.list$topemotion+1
+  
+  temp=In.list$topemotion.v
+  In.list$topemotion.v[temp<0.05]=1
+  
+  df=In.list
+  
+  
+  ptcol.use=alpha(col.use[df$topemotion], sqrt(sqrt(df$topemotion.v)))
+  
+  plot(df$sent.id, df$word.count, 
+       col=ptcol.use,
+       type="h", #ylim=c(-10, max(In.list$word.count)),
+       main="War Time Presidents", xlab="Sentiment", ylab="Word Count")
+  
+  
+}
+
+plot.warlist(In.list=wartime.sentences)
+  
+ 
+
+```
+
+```{r}
+
+plot.peacelist=function(In.list){
+  
+  col.use=c("lightgray", "red2", "darkgoldenrod1", 
+            "chartreuse3", "blueviolet",
+            "darkgoldenrod2", "dodgerblue3", 
+            "darkgoldenrod1", "darkgoldenrod1",
+            "black", "darkgoldenrod2")
+  
+  In.list$topemotion=apply(select(In.list, 
+                                        anger:positive), 
+                                 1, which.max)
+  In.list$topemotion.v=apply(select(In.list,
+                                          anger:positive), 
+                                   1, max)
+  In.list$topemotion[In.list$topemotion.v<0.05]=0
+  In.list$topemotion=In.list$topemotion+1
+  
+  temp=In.list$topemotion.v
+  In.list$topemotion.v[temp<0.05]=1
+  
+  df=In.list
+  
+  
+  ptcol.use=alpha(col.use[df$topemotion], sqrt(sqrt(df$topemotion.v)))
+  
+  plot(df$sent.id, df$word.count, 
+       col=ptcol.use,
+       type="h", #ylim=c(-10, max(In.list$word.count)),
+       main="Peace Time Presidents", xlab="Sentiment", ylab="Word Count")
+  
+  
+}
+
+plot.peacelist(In.list=peacetime.sentences)
+  
+
+
+```
+
+#Conclusion of Speeches as a whole
+
+- The War Presidents appear to use shorter, more direct sentences. 
+- The War Presidents also seem to show more consistent feelings of negativity along these shorter, more direct sentences.
+- The Peace-time Presidents have notably more yellow sentiments of Joy, Anticipation, and Trust than do the War Presidents
+- Interestingly enough, this large overview seems to show that along War and Peace, levels of fear and anger remain roughly the same
+
+
+
+To get a closer look at what separates the sentiments of War and Peace-time Presidents, it may help to see a sample of what the most "emotionally charged" sentences are between them.
+
+The calculation of the most "emotionally charged" sentences is calculated from the NRC Lexicon - the sentences with the highest values across all the emotions are isolated and presented with the functions below.
+
+#Most emotionally charged "War" sentences
+
+```{r}
+
+war.speech.df <- tbl_df(wartime.sentences)%>% 
+  select(sentences,anger:trust)
+war.speech.df<- as.data.frame(war.speech.df)
+as.character(war.speech.df$sentences[apply(war.speech.df[,-1], 2, which.max)])
+  
+
+
+```
+
+#Most emotionally charged "Peace" sentences
+
+```{r}
+peace.speech.df <- tbl_df(peacetime.sentences)%>% 
+  select(sentences,anger:trust)
+peace.speech.df<- as.data.frame(peace.speech.df)
+as.character(peace.speech.df$sentences[apply(peace.speech.df[,-1], 2, which.max)])
+
+
+```
+
+#Emotion Clustering: WAR
+
+To obtain an even closer look at the sentiments between War and Peace-time Presidents, we will look at a heat-map distribution of the NRC Emotions. 
+
+Along the same lines, we will also show the mean-values of each Emotion's numerical value in the form of a bar-graph to display the intensity of each emotion between the War and Peace-time Presidents.
+
+```{r}
+heatmap.2(cor(wartime.sentences%>%select(anger:trust)), 
+          scale = "none", 
+          col = bluered(100), margin=c(6, 6), key=F,
+          trace = "none", density.info = "none")
+
+par(mar=c(4, 6, 2, 1))
+emo.means=colMeans(select(wartime.sentences, anger:trust)>0.01)
+col.use=c("red2", "darkgoldenrod1", 
+            "chartreuse3", "blueviolet",
+            "darkgoldenrod2", "dodgerblue3", 
+            "darkgoldenrod1", "darkgoldenrod1")
+barplot(emo.means[order(emo.means)], las=2, col=col.use[order(emo.means)], horiz=T, main="Wartime Inaugural Speeches")
+
+
+
+```
+
+#Emotion Clustering: PEACE
+
+```{r}
+heatmap.2(cor(peacetime.sentences%>%select(anger:trust)), 
+          scale = "none", 
+          col = bluered(100), margin=c(6, 6), key=F,
+          trace = "none", density.info = "none")
+
+par(mar=c(4, 6, 2, 1))
+emo.means=colMeans(select(peacetime.sentences, anger:trust)>0.01)
+col.use=c("red2", "darkgoldenrod1", 
+            "chartreuse3", "blueviolet",
+            "darkgoldenrod2", "dodgerblue3", 
+            "darkgoldenrod1", "darkgoldenrod1")
+barplot(emo.means[order(emo.means)], las=2, col=col.use[order(emo.means)], horiz=T, main="Peace-time Inaugural Speeches")
+
+
+
+```
+
+#Conclusions: Heatmap and Emotion-Intensity-BarGraph
+
+- There is notably much more "disgust" and "sadness" present in the inaugural speeches of the War Presidents
+- Across all emotions, the Peace-time speeches appear to be more intense on average. This suggests that the higher concentrations of disgust and sadness which were earlier noted may be due to the particularly disgusted and saddened speeches of certain War President(s)
+<c>
